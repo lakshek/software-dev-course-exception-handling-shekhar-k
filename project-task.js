@@ -24,7 +24,11 @@ Test and Debug:
 Test the program with valid and invalid inputs to confirm that exceptions are handled gracefully
 and the program continues running as intended.
 */
-
+/* Errors when run
+1. readline-sync module is missing - need to import readline-sync - npm install readline-sync
+2. No error but accepts numbers as name, which might be ok. However, the program accepts non-numeric value as fee. It actually adds the fee as $NaN.
+3. Throws error when inquiring fee for an animal that doesn't exist in the system. Throw error message is "Animal not found in records" instead of displaying a message instead of erroring out.
+*/
 
 // Will need to import / install readline-sync if not done so already within project dir: npm install readline-sync 
 const readlineSync = require('readline-sync');
@@ -47,6 +51,7 @@ function getAdoptionFee(animalName) {
     return fees[index];
 }
 // Main program
+
 console.log("Welcome to the Pet Shelter System");
 while (true) {
     let action = readlineSync.question("Choose an action: 'add', 'fee', or 'exit': ").toLowerCase();
@@ -57,16 +62,26 @@ while (true) {
     if (action === "add") {
         let animal = readlineSync.question("Enter the animal's name: ");
         let fee = Number(readlineSync.question("Enter the adoption fee: "));
-        addAnimal(animal, fee);
+        
+        try {addAnimal(animal, fee);
         console.log(`${animal} added with a fee of $${fee}.`);
+        } catch (error) {
+            console.error(error.message);
+        }
     } else if (action === "fee") {
         let animal = readlineSync.question("Enter the animal's name to find its adoption fee: ");
-        console.log(`${animal}'s adoption fee is $${getAdoptionFee(animal)}.`);
+        
+        try {
+            let fee = getAdoptionFee(animal);
+            console.log(`${animal}'s adoption fee is $${fee}.`);
+        } catch (error) {
+            console.error(error.message);
+        }
+        
     } else {
         console.log("Invalid action. Please choose 'add', 'fee', or 'exit'.");
     }
 }
-
 
 
 /*
@@ -74,11 +89,17 @@ Problems to Solve
 
 Invalid Input Errors:
   What happens if the user provides a negative adoption fee or leaves the name blank?
+    blank name and a fee of a positive number throws an error "Invalid animal name or adoption fee!"
+    a valid name and a fee of negative number throws an error "Invalid animal name or adoption fee!"
+    a blank name AND a fee of a negative number throws an error "Invalid animal name or adoption fee!"
   What happens if the user tries to find the fee for an animal that hasn’t been added?
+    Throws an error "Animal not found in records!"
 
 Code Flow Problems:
   What happens if the program throws an exception? Does the rest of the code continue running?
-
+    No, the program stops with the error.
 Structured Exception Handling:
   Add try/catch blocks to handle the above errors gracefully.
+    added try/catch to call function addAnimal after accepting the name and fee under action "add".
+    added try/catch to call function getAdoptionFee after accepting the name under action "Fee".
 */
